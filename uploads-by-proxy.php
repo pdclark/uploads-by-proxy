@@ -30,25 +30,23 @@ Author URI: http://brainstormmedia.com
  * **********************************************************************
  */
 
+/**
+ * Domain running an apache passthrough proxy, using this .htaccess:
+ *     # Proxy requests from /domain/path to http://domain/path
+ *     <IfModule mod_rewrite.c>
+ *     RewriteEngine On
+ *     RewriteRule ^([^/]*)/(.*)$ http://$1/$2 [P,L]
+ *     </IfModule>
+ */
+if ( !defined('UBP_PROXY') ) define('UBP_PROXY', false); // e.g., proxy.domain.com
+
 $storm_uploads_by_proxy = new Storm_Uploads_by_Proxy();
 
 class Storm_Uploads_by_Proxy {
 
-	/**
-	 * Domain running an apache passthrough proxy, using this .htaccess:
-	 *     # Proxy requests from /domain/path to http://domain/path
-	 *     <IfModule mod_rewrite.c>
-	 *     RewriteEngine On
-	 *     RewriteRule ^([^/]*)/(.*)$ http://$1/$2 [P,L]
-	 *     </IfModule>
-	 */
-	var $proxy = ''; // e.g., proxy.domain.com
-
 	var $marker = 'Uploads by Proxy';
 
 	function __construct() {
-		$this->proxy = apply_filters( 'ubp_proxy', $this->proxy );
-
 		register_activation_hook(   __FILE__, array($this, 'save_mod_rewrite_rules') ); 
 		register_deactivation_hook( __FILE__, array($this, 'remove_rewrite_rules') ); 
 		add_action('template_redirect', array($this, 'template_redirect'));
@@ -67,12 +65,18 @@ class Storm_Uploads_by_Proxy {
 	}
 
 	public function get_rewrite_rules() {
+		$proxy = apply_filters( 'ubp_proxy', UBP_PROXY );
+
+		if ( empty($proxy) ) {
+			return false;
+		}
+
 		$rules_file = plugin_dir_path(__FILE__) . 'htaccess-rewrite-rules.txt';
 
 		if ( file_exists($rules_file) ) {
 			$rules = file_get_contents( $rules_file );
 			$rules = str_replace('UPLOADS', $this->uploads_basedir(), $rules);
-			$rules = str_replace('PROXY', $this->proxy, $rules);
+			$rules = str_replace('PROXY', $proxy, $rules);
 
 			return $rules;
 		}else {
@@ -88,13 +92,16 @@ class Storm_Uploads_by_Proxy {
 	 * Redirect to live file through proxy
 	 */
 	public function redirect( $path ) {
+		$proxy = apply_filters( 'ubp_proxy', UBP_PROXY );
+		$domain = apply_filters( 'ubp_domain', $_SERVER['HTTP_HOST'] );
+
+		if ( !$proxy ) { return false; }
+
 		global $wp_query;
 		status_header( 200 );
 		$wp_query->is_404 = false;
 
-		$domain = $_SERVER['HTTP_HOST'];
-
-		$url = 'http://' . trailingslashit($this->proxy) . $domain . $path;
+		$url = 'http://' . trailingslashit($proxy) . $domain . $path;
 
 		header( "Location: $url", 302 );
 		exit;
@@ -149,15 +156,11 @@ class Storm_Uploads_by_Proxy {
 		// If the file doesn't already exist check for write access to the directory and whether we have some rules.
 		// else check for write access to the file.
 		if ((!file_exists($htaccess_file) && is_writable($home_path)) || is_writable($htaccess_file)) {
-			if ( $rules ) {
+			if ( $remove || empty($rules) ) {
+				return $this->prepend_with_markers( $htaccess_file, $this->marker, array() );
+			}else {
 				$rules = explode( "\n", $rules );
-
-				if ( $remove ){
-					return $this->prepend_with_markers( $htaccess_file, $this->marker, array() );
-				}else {
-					return $this->prepend_with_markers( $htaccess_file, $this->marker, $rules );
-				}
-
+				return $this->prepend_with_markers( $htaccess_file, $this->marker, $rules );
 			}
 		}
 
