@@ -40,6 +40,10 @@ Author URI: http://brainstormmedia.com
 	// Disable & Enable plugin after putting in theme or plugin
 	add_filter('ubp_remove_rewrite_rules', '__return_true');
 
+	// Load live images from a domain differing from the current site's
+	// e.g., we're on a staging domain, but want to load from a live domain
+	add_filter( 'ubp_domain', create_function('', 'return "domain.com";') );
+
 	// Add a custom source for IP address lookups
 	add_filter('ubp_ip_url', 'ubp_ip_url', 10, 2);
 	function ubp_ip_url( $url, $domain ) {
