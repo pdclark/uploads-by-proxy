@@ -42,14 +42,15 @@ class Storm_Uploads_by_Proxy {
 	 *     RewriteRule ^([^/]*)/(.*)$ http://$1/$2 [P,L]
 	 *     </IfModule>
 	 */
-	var $proxy = 'proxy.brainstormmedia.com';
+	var $proxy = ''; // e.g., proxy.domain.com
 
 	var $marker = 'Uploads by Proxy';
 
 	function __construct() {
+		$this->proxy = apply_filters( 'ubp_proxy', $this->proxy );
+
 		register_activation_hook(   __FILE__, array($this, 'save_mod_rewrite_rules') ); 
 		register_deactivation_hook( __FILE__, array($this, 'remove_rewrite_rules') ); 
-
 		add_action('template_redirect', array($this, 'template_redirect'));
 	}
 
@@ -65,11 +66,15 @@ class Storm_Uploads_by_Proxy {
 		$this->redirect( $path );
 	}
 
-	public function rewrite_rules() {
+	public function get_rewrite_rules() {
 		$rules_file = plugin_dir_path(__FILE__) . 'htaccess-rewrite-rules.txt';
 
 		if ( file_exists($rules_file) ) {
-			return file_get_contents( $rules_file );
+			$rules = file_get_contents( $rules_file );
+			$rules = str_replace('UPLOADS', $this->uploads_basedir(), $rules);
+			$rules = str_replace('PROXY', $this->proxy, $rules);
+
+			return $rules;
 		}else {
 			return false;
 		}
@@ -138,7 +143,7 @@ class Storm_Uploads_by_Proxy {
 
 		$home_path = get_home_path();
 		$htaccess_file = $home_path.'.htaccess';
-		$rules = $this->rewrite_rules();
+		$rules = $this->get_rewrite_rules();
 
 		// If the file doesn't already exist check for write access to the directory and whether we have some rules.
 		// else check for write access to the file.
