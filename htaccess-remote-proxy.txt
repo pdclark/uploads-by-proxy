@@ -1,0 +1,9 @@
+# Install this in the root directory of a web site domain or subdomain
+# For use for the faster UBP_PROXY method
+# Requires mod_rewrite and mod_proxy on Apache
+#
+# Proxy requests from /domain/path to http://domain/path
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^([^/]*)/(.*)$ http://$1/$2 [P,L]
+</IfModule>
