@@ -141,6 +141,7 @@ class Storm_Uploads_by_Proxy {
 		if ( !function_exists('got_mod_rewrite') ){ include ABSPATH.'/wp-admin/includes/misc.php'; }
 		if ( !function_exists('get_home_path')   ){ include ABSPATH.'/wp-admin/includes/file.php'; }
 
+		$remove = apply_filters( 'ubp_remove_rewrite_rules', $remove );
 		$home_path = get_home_path();
 		$htaccess_file = $home_path.'.htaccess';
 		$rules = $this->get_rewrite_rules();
