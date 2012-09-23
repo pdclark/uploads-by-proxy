@@ -64,10 +64,24 @@ class Storm_Uploads_by_Proxy {
 		$this->redirect( $path );
 	}
 
-	public function get_rewrite_rules() {
-		$proxy = apply_filters( 'ubp_proxy', UBP_PROXY );
+	/**
+	 * Redirect to live file through proxy
+	 */
+	public function redirect( $path ) {
+		if ( !$this->get_proxy() ) { return false; }
 
-		if ( empty($proxy) ) {
+		global $wp_query;
+		status_header( 200 );
+		$wp_query->is_404 = false;
+
+		$url = 'http://' . trailingslashit($this->get_proxy()) . $this->get_domain() . $path;
+
+		header( "Location: $url", 302 );
+		exit;
+	}
+
+	public function get_rewrite_rules() {
+		if ( false == $this->get_proxy() ) {
 			return false;
 		}
 
@@ -76,7 +90,7 @@ class Storm_Uploads_by_Proxy {
 		if ( file_exists($rules_file) ) {
 			$rules = file_get_contents( $rules_file );
 			$rules = str_replace('UPLOADS', $this->uploads_basedir(), $rules);
-			$rules = str_replace('PROXY', $proxy, $rules);
+			$rules = str_replace('PROXY', $this->get_proxy(), $rules);
 
 			return $rules;
 		}else {
@@ -86,25 +100,6 @@ class Storm_Uploads_by_Proxy {
 
 	public function remove_rewrite_rules() {
 		$this->save_mod_rewrite_rules(true);
-	}
-
-	/**
-	 * Redirect to live file through proxy
-	 */
-	public function redirect( $path ) {
-		$proxy = apply_filters( 'ubp_proxy', UBP_PROXY );
-		$domain = apply_filters( 'ubp_domain', $_SERVER['HTTP_HOST'] );
-
-		if ( !$proxy ) { return false; }
-
-		global $wp_query;
-		status_header( 200 );
-		$wp_query->is_404 = false;
-
-		$url = 'http://' . trailingslashit($proxy) . $domain . $path;
-
-		header( "Location: $url", 302 );
-		exit;
 	}
 
 	/**
@@ -132,6 +127,16 @@ class Storm_Uploads_by_Proxy {
 	public function uploads_basedir() {
 		$uploads = wp_upload_dir();
 		return str_replace( ABSPATH, '', $uploads['basedir'] );
+	}
+
+	public function get_proxy() {
+		if( !isset($this->proxy) ){ $this->proxy = apply_filters( 'ubp_proxy', UBP_PROXY ); }
+		return $this->proxy;
+	}
+
+	public function get_domain() {
+		if( !isset($this->domain) ){ $this->domain = apply_filters( 'ubp_domain', $_SERVER['HTTP_HOST'] ); }
+		return $this->domain;
 	}
 
 	/**
