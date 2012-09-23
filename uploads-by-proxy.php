@@ -2,7 +2,7 @@
 /*
 Plugin Name: Uploads by Proxy
 Plugin URI: http://brainstormmedia.com
-Description: Load images from live site if missing in development environment.
+Description: Load images from live site if missing in development or staging environment. Meant to be used in a local development environment only. Override this with <code>define('UBP_IS_LOCAL', true);</code> in wp-config.php.
 Version: 1.0
 Author: Brainstorm Media
 Author URI: http://brainstormmedia.com
@@ -33,12 +33,8 @@ Author URI: http://brainstormmedia.com
 /*
 	Settings & Filters:
 	// Set up a proxy in /wp-config.php
-	// Disable & Enable plugin after putting in theme or plugin
+	// Disable & Enable after putting in wp-config.php
 	define('UBP_PROXY', 'proxy.domain.com' );
-
-	// Set up a proxy in /wp-content/THEME/functions.php
-	// Disable & Enable plugin after putting in theme or plugin
-	add_filter('ubp_proxy', create_function('', 'return "proxy.website.com";'));
 
 	// Force disable of .htaccess rewrite rules in /wp-content/THEME/functions.php
 	// Disable & Enable plugin after putting in theme or plugin
@@ -50,7 +46,6 @@ Author URI: http://brainstormmedia.com
 		return 'http://website.com/ip.php?domain='.$domain;
 	}
 */
-
 
 /**
  * Handle redirection with Apache rewrite rules
@@ -65,6 +60,8 @@ Author URI: http://brainstormmedia.com
  */
 if ( !defined('UBP_PROXY') ) define('UBP_PROXY', false); // e.g., proxy.domain.com
 
+if ( !defined('UBP_IS_LOCAL') ) define('UBP_IS_LOCAL', ( '127.0.0.1' == $_SERVER['SERVER_ADDR'] && '127.0.0.1' == $_SERVER['REMOTE_ADDR'] ) );
+
 $storm_uploads_by_proxy = new Storm_Uploads_by_Proxy();
 
 class Storm_Uploads_by_Proxy {
@@ -75,11 +72,33 @@ class Storm_Uploads_by_Proxy {
 	var $domain;
 
 	function __construct() {
+		// Require that we're on a development server
+		if ( !UBP_IS_LOCAL ) { $this->deactivate(); }
 
 		register_activation_hook(   __FILE__, array($this, 'save_mod_rewrite_rules') ); 
 		register_deactivation_hook( __FILE__, array($this, 'remove_rewrite_rules') ); 
 
 		add_action('template_redirect', array($this, 'template_redirect'));
+	}
+
+	public function deactivate() {
+		$plugin = plugin_basename( __FILE__ );
+
+		if ( !function_exists('is_plugin_active') ){ include ABSPATH.'/wp-admin/includes/plugin.php'; }
+
+		if( is_plugin_active( $plugin ) ) {
+			deactivate_plugins( $plugin );
+			wp_die( $this->deactivate_message() );
+		}
+	}
+
+	public function deactivate_message() {
+		return $this->plugin_name() . "should only be enabled in a development environment. If you are sure you want to enable the plugin on this site, add <code>define('UBP_IS_LOCAL', true);</code> to <code>wp-config.php</code>.<br /><br />Back to <a href='".admin_url('plugins.php')."'>Plugins Page</a>.";
+	}
+
+	public function plugin_name() {
+		$plugin_data = get_plugin_data( __FILE__, false );
+		return $plugin_data['Name'];
 	}
 
 	/**
