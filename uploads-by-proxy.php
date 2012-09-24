@@ -191,9 +191,12 @@ class Storm_Uploads_by_Proxy {
 		$rules_file = plugin_dir_path(__FILE__) . 'htaccess-rewrite-rules.txt';
 
 		if ( file_exists($rules_file) ) {
+			$domain = ( $_SERVER['HTTP_HOST'] == UBP_LIVE_DOMAIN ) ? '%1' : UBP_LIVE_DOMAIN;
+
 			$rules = file_get_contents( $rules_file );
 			$rules = str_replace('UPLOADS', $this->uploads_basedir(), $rules);
 			$rules = str_replace('PROXY', $this->get_proxy(), $rules);
+			$rules = str_replace('DOMAIN', $domain, $rules);
 
 			return $rules;
 		}else {
