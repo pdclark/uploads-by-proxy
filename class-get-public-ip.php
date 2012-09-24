@@ -42,7 +42,7 @@ class Storm_Get_Public_IP {
 		return $this->ip;
 	}
 
-	public function get_ip( $url, $args ) {
+	public function get_ip( $url, $args=array() ) {
 		$defaults = array( 
 			'method' => 'GET',
 			'referer'=> $domain,
@@ -62,10 +62,6 @@ class Storm_Get_Public_IP {
 		$body = strip_tags($response['body']);
 
 		preg_match_all( $this->ip_pattern, $body, $matches );
-
-		FB::log($body, '$body');
-		FB::log($matches, '$matches');
-		exit;
 
 		if ( !empty($matches[0][$index] ) ) { return $matches[0][$index]; }
 

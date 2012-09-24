@@ -30,32 +30,22 @@ Author URI: http://brainstormmedia.com
  * **********************************************************************
  */
 
-/*
-	Settings & Filters:
-	// Set up a proxy in /wp-config.php
-	// Disable & Enable after putting in wp-config.php
-	define('UBP_PROXY', 'proxy.domain.com' );
-
-	// Force disable of .htaccess rewrite rules in /wp-content/THEME/functions.php
-	// Disable & Enable plugin after putting in theme or plugin
-	add_filter('ubp_remove_rewrite_rules', '__return_true');
-
-	// Load live images from a domain differing from the current site's
-	// e.g., we're on a staging domain, but want to load from a live domain
-	add_filter( 'ubp_domain', create_function('', 'return "domain.com";') );
-
-	// Add a custom source for IP address lookups
-	add_filter('ubp_ip_url', 'ubp_ip_url', 10, 2);
-	function ubp_ip_url( $url, $domain ) {
-		return 'http://website.com/ip.php?domain='.$domain;
-	}
-*/
+/**
+ *	Example filter: Add custom hook for getting public IP.
+ *  In this case, ip.php would just run <?php echo gethostbyname( $_GET['domain'] );
+ *
+ *    add_filter('ubp_ip_url', 'ubp_ip_url', 10, 2);
+ *    function ubp_ip_url( $url, $domain ) {
+ *    	return 'http://website.com/ip.php?domain='.$domain;
+ *    }
+ */
 
 /**
  * Handle redirection with Apache rewrite rules
  * Requires UBP_PROXY point to a domain that had mod_rewrite and mod_proxy enabled.
  * Put the contents of htaccess-remote-proxy.txt in the remote root directory as .htaccess
- * Then put the address of your proxy in wp-config.php, like:
+ * 
+ * Override by adding this to wp-config.php, then disabling and re-enabling the plugin.
  *     define('UBP_PROXY', 'proxy.domain.com' );
  * 
  * Remote Proxy:   On
@@ -63,6 +53,23 @@ Author URI: http://brainstormmedia.com
  * Speed:          Very Fast
  */
 if ( !defined('UBP_PROXY') ) define('UBP_PROXY', false); // e.g., proxy.domain.com
+
+/**
+ * Load live images from a domain differing from the current site's
+ * For example, we're on domain.dev or stage.domain.com but want to load from domain.com
+ *
+ * Override by adding this to wp-config.php, then disabling and re-enabling the plugin.
+ *     define('UBP_LIVE_DOMAIN', 'domain.com');
+ */
+if ( !defined('UBP_LIVE_DOMAIN') ) define('UBP_LIVE_DOMAIN', $_SERVER['HTTP_HOST'] ); // e.g., domain.com
+
+/**
+ * Disable .htaccess rewrite rules
+ *
+ * Override by adding this to wp-config.php, then disabling and re-enabling the plugin.
+ *     define('UBP_MOD_REWRITE', false);
+ */
+if ( !defined('UBP_MOD_REWRITE') ) define('UBP_MOD_REWRITE', true);
 
 if ( !defined('UBP_IS_LOCAL') ) define('UBP_IS_LOCAL', ( '127.0.0.1' == $_SERVER['SERVER_ADDR'] && '127.0.0.1' == $_SERVER['REMOTE_ADDR'] ) );
 
@@ -184,9 +191,12 @@ class Storm_Uploads_by_Proxy {
 		$rules_file = plugin_dir_path(__FILE__) . 'htaccess-rewrite-rules.txt';
 
 		if ( file_exists($rules_file) ) {
+			$domain = ( $_SERVER['HTTP_HOST'] == UBP_LIVE_DOMAIN ) ? '%1' : UBP_LIVE_DOMAIN;
+
 			$rules = file_get_contents( $rules_file );
 			$rules = str_replace('UPLOADS', $this->uploads_basedir(), $rules);
 			$rules = str_replace('PROXY', $this->get_proxy(), $rules);
+			$rules = str_replace('DOMAIN', $domain, $rules);
 
 			return $rules;
 		}else {
@@ -231,7 +241,7 @@ class Storm_Uploads_by_Proxy {
 	}
 
 	public function get_domain() {
-		if( !isset($this->domain) ){ $this->domain = apply_filters( 'ubp_domain', $_SERVER['HTTP_HOST'] ); }
+		if( !isset($this->domain) ){ $this->domain = UBP_LIVE_DOMAIN; }
 		return $this->domain;
 	}
 
@@ -253,7 +263,7 @@ class Storm_Uploads_by_Proxy {
 		if ( !function_exists('got_mod_rewrite') ){ include ABSPATH.'/wp-admin/includes/misc.php'; }
 		if ( !function_exists('get_home_path')   ){ include ABSPATH.'/wp-admin/includes/file.php'; }
 
-		$remove = apply_filters( 'ubp_remove_rewrite_rules', $remove );
+		$remove = !UBP_MOD_REWRITE;
 		$home_path = get_home_path();
 		$htaccess_file = $home_path.'.htaccess';
 		$rules = $this->get_rewrite_rules();
