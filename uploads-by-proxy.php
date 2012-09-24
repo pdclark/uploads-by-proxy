@@ -250,20 +250,22 @@ class Storm_Uploads_by_Proxy {
 	}
 
 	/**
-	 * Updates the htaccess file with the rewrite rules if it is writable.
+	 * Updates .htaccess with rewrite rules if it is writable.
 	 *
-	 * Always writes to the file if it exists and is writable to ensure that we
-	 * blank out old rules.
+	 * Always writes to the file if it exists and is writable to ensure that we blank out old rules.
 	 */
 	function save_mod_rewrite_rules( $remove=false ) {
 		if ( is_multisite() || !apache_mod_loaded('mod_proxy') || !apache_mod_loaded('mod_rewrite') ) {
-			return;
+			$remove = true;
 		}
 
 		if ( !function_exists('got_mod_rewrite') ){ include ABSPATH.'/wp-admin/includes/misc.php'; }
 		if ( !function_exists('get_home_path')   ){ include ABSPATH.'/wp-admin/includes/file.php'; }
 
-		$remove = !UBP_MOD_REWRITE;
+		if ( false === UBP_MOD_REWRITE ) {
+			$remove = true;
+		}
+
 		$home_path = get_home_path();
 		$htaccess_file = $home_path.'.htaccess';
 		$rules = $this->get_rewrite_rules();
