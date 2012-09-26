@@ -81,6 +81,8 @@ class Storm_Uploads_by_Proxy {
 	var $expire = 86400;
 	var $proxy;
 	var $domain;
+	var $response;
+	var $message;
 
 	function __construct() {
 		// Require that we're on a development server
@@ -162,25 +164,59 @@ class Storm_Uploads_by_Proxy {
 
 		$ip = new Storm_Get_Public_IP( $this->get_domain() );
 
-		// Tell the remote IP that we're loading for a specific domain
+		// Send domain name in request headers so vhosts resolve
 		$args = array( 'headers' => array( 'Host' => $this->get_domain() ) );
+		// Route around local DNS by requesting by IP directly
 		$url = 'http://'.$ip.$path;
 
-		$response = wp_remote_get( $url, $args);
+		$this->response = wp_remote_get( $url, $args);
 
-		if ( !is_wp_error($response) && 200 == $response['response']['code'] ) {
-			global $wp_query;
-			status_header( 200 );
-			$wp_query->is_404 = false;
-
-			foreach( $response['headers'] as $name => $value ){
-				header( "$name: $value" );
-			}
-
-			echo $response['body'];
-
-			exit;
+		if ( !is_wp_error($this->response) && 200 == $this->response['response']['code'] ) {
+			$this->download( $path );
 		}
+	}
+
+	public function download( $path ) {
+		if ( !function_exists('WP_Filesystem')) { require ABSPATH.'wp-admin/includes/file.php'; }
+		global $wp_filesystem; WP_Filesystem();
+
+		$u = wp_upload_dir();
+		$basedir = $u['basedir'];
+
+		$remove = str_replace( get_option( 'siteurl' ), '', $u['baseurl'] );
+		$basedir = str_replace( $remove, '', $basedir );
+		$abspath = $basedir.$path;
+		$dir = dirname( $abspath );
+
+		if ( !is_dir( $dir ) && !wp_mkdir_p( $dir ) ) { 
+			$this->display_and_exit( "Please check permissions. Could not create directory $dir" );
+		}
+
+		$saved_image = $wp_filesystem->put_contents( $abspath, $this->response['body'], FS_CHMOD_FILE ); // predefined mode settings for WP files
+
+		if ( $saved_image ) {
+			wp_redirect( $path );
+			exit;
+		}else {
+			$this->display_and_exit( "Please check permissions. Could not write image $dir" );
+		}
+
+	}
+
+	public function display_and_exit( $message=false ) {
+		global $wp_query;
+		status_header( 200 );
+		$wp_query->is_404 = false;
+
+		// Send debug message in response headers.
+		if ( $message ) { header('*Uploads-by-Proxy: ' . $message ); }
+
+		foreach( $this->response['headers'] as $name => $value ){
+			header( "$name: $value" );
+		}
+
+		echo $this->response['body'];
+		exit;
 	}
 
 	public function get_rewrite_rules() {
@@ -220,7 +256,7 @@ class Storm_Uploads_by_Proxy {
 		$allowed_paths = apply_filters( 'stlu_allowed_paths', $allowed_paths );
 
 		foreach ( $allowed_paths as $value ){
-			if ( false !== strpos($path, $value) ) { return true; }
+			if ( false !== @strpos($path, $value) ) { return true; }
 		}
 
 		return false;
