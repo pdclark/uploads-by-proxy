@@ -3,7 +3,7 @@
 Plugin Name: Uploads by Proxy
 Plugin URI: http://brainstormmedia.com
 Description: Load images from live site if missing in development or staging environment. Meant to be used in a local development environment only. Override this with <code>define('UBP_IS_LOCAL', true);</code> in wp-config.php.
-Version: 1.0
+Version: 0.5
 Author: Brainstorm Media
 Author URI: http://brainstormmedia.com
 */
