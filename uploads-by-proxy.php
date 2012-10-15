@@ -33,13 +33,25 @@ Author URI: http://brainstormmedia.com
 /**
  * Load live images from a domain differing from the current site's
  * For example, we're on domain.dev or stage.domain.com but want to load from domain.com
- *
- * Override by adding this to wp-config.php, then disabling and re-enabling the plugin.
- *     define('UBP_LIVE_DOMAIN', 'domain.com');
  */
 if ( !defined('UBP_LIVE_DOMAIN') ) define('UBP_LIVE_DOMAIN', $_SERVER['HTTP_HOST'] ); // e.g., domain.com
 
+/**
+ * Check that we're on a development server.
+ * This tests if we're serving from and to localhost (127.0.0.1),
+ * which should catch most common dev environments like MAMP, WAMP, XAMPP, etc.
+ *
+ * If you're hosting from a staging environment, or some weird situation where
+ * this test doesn't return true, redefine it in wp-config.php:
+ *     define('UBP_IS_LOCAL', true);
+ *
+ * 	   WARNING!!
+ *     Do not set this to "true" on a live site!
+ *     Doing so will cause 404 pages for wp-content/uploads to go into
+ *     an infinite loop until Apache kills the PHP process.
+ */
 if ( !defined('UBP_IS_LOCAL') ) define('UBP_IS_LOCAL', ( '127.0.0.1' == $_SERVER['SERVER_ADDR'] && '127.0.0.1' == $_SERVER['REMOTE_ADDR'] ) );
+
 
 /**
  * Check for PHP 5.2 or higher before activating.
@@ -52,30 +64,11 @@ if ( version_compare(PHP_VERSION, '5.2', '<') ) {
 	} else {
 		return;
 	}
-}else {
-
-	// Only initialize if we're on a development server and have a 404
-	if ( UBP_IS_LOCAL ) {
-		add_filter( '404_template', 'ubp_frontend_init' );
-	}
-
 }
 
-/**
- * Used to load required files on the 404_template hook, instead of immediately.
- * Method from Yoast's WordPress SEO
- */
-function ubp_frontend_init( $template ) {
-	global $UBP_Frontend;
-	require_once dirname( __FILE__ ).'/class-frontend.php';
-	$UBP_Frontend = new UBP_Frontend();
-	return $template;
-}
+require_once dirname( __FILE__ ).'/ubp-functions.php';
 
-/**
- * Return the plugin name from the plugin header.
- */
-function ubp_plugin_name() {
-	$plugin_data = get_plugin_data( __FILE__, false );
-	return $plugin_data['Name'];
+// Only initialize if we're on a development server and have a 404
+if ( UBP_IS_LOCAL ) {
+	add_filter( '404_template', 'ubp_frontend_init' );
 }

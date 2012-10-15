@@ -2,7 +2,7 @@
 
 /**
  * Handle redirection through WordPress 404
- * Only loads on 404_template hook
+ * Should only be loaded on 404_template hook
  */
 class UBP_Frontend {
 
