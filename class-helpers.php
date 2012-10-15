@@ -3,22 +3,19 @@
 class UBP_Helpers {
 
 	/**
-	 * Used to load required files on the 404_template hook, instead of immediately.
-	 * Method from Yoast's WordPress SEO
+	 * Only load required files on the 404_template hook
 	 */
-	static public function frontend_init( $template ) {
-		global $UBP_Frontend;
-		require_once dirname( __FILE__ ).'/class-frontend.php';
-		$UBP_Frontend = new UBP_Frontend();
+	static public function init_404_template( $template ) {
+		global $UBP_404_Template;
+		require_once dirname( __FILE__ ).'/class-404-template.php';
+		$UBP_404_Template = new UBP_404_Template();
 		return $template;
 	}
 
 	static public function requirements_check() {
-		// Deactivates if multisite, so run immediately
-		self::require_no_multisite();
-
+		add_action( 'admin_init', 'UBP_Helpers::require_no_multisite', 11 );
 		add_action( 'admin_notices', 'UBP_Helpers::request_uploads_writable' );
-		add_action( 'admin_notices', 'UBP_Helpers::request_permalinks_enabled' );
+		add_action( 'admin_footer', 'UBP_Helpers::request_permalinks_enabled' );
 	}
 
 	/**
@@ -30,21 +27,15 @@ class UBP_Helpers {
 		if ( is_admin() && (!defined('DOING_AJAX') || !DOING_AJAX) ) {
 			require_once ABSPATH.'/wp-admin/includes/plugin.php';
 			deactivate_plugins( UBP_PLUGIN_FILE );
-			wp_die( __( 'Uploads by Proxy is not compatible with network installs. Please activate the plugin on single-site installs only.', 'uploads-by-proxy') );
-		} else {
-			return false;
+			wp_die( __( 'Uploads by Proxy is not yet compatible with network installs. The plugin has now disabled itself. Please activate on single-site installs only.', 'uploads-by-proxy') );
 		}
-
-		echo '<div id="ubp_uploads_message" class="error"><p>'
-			 . __( 'The uploads directory must be enabled for Uploads by Proxy to work. ', 'uploads-by-proxy' )
-			 . sprintf( __( '%sRead about changing file permissions%s, or run:<br/><code>chmod 755 "%s";', 'uploads-by-proxy' ), '<a href="http://codex.wordpress.org/Changing_File_Permissions" target="_blank">', '</a>', $upload_dir['basedir'] )
-			 . '</p></div>';
 
 		return false;
 	}
 
 	/**
 	 * Display an error message when permalinks are disabled
+	 * Runs on admin_footer becuase admin_notices hook is too early to catch recent changes in permalinks
 	 */
 	static public function request_permalinks_enabled() {
 		if ( '' != get_option('permalink_structure') ) { return true; }
@@ -66,7 +57,8 @@ class UBP_Helpers {
 
 		echo '<div id="ubp_uploads_message" class="error"><p>'
 			 . __( 'The uploads directory must be enabled for Uploads by Proxy to work. ', 'uploads-by-proxy' )
-			 . sprintf( __( '%sRead about changing file permissions%s, or run:<br/><code>chmod 755 "%s";', 'uploads-by-proxy' ), '<a href="http://codex.wordpress.org/Changing_File_Permissions" target="_blank">', '</a>', $upload_dir['basedir'] )
+			 . sprintf( __( '%sRead about changing file permissions%s, or try running:', 'uploads-by-proxy' ), '<a href="http://codex.wordpress.org/Changing_File_Permissions" target="_blank">', '</a>' )
+			 . sprintf( "<br/><code>chmod 755 '%s';</code>", $upload_dir['basedir'] )
 			 . '</p></div>';
 
 		return false;

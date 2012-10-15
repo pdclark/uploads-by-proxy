@@ -1,10 +1,9 @@
 <?php
 
 /**
- * Handle redirection through WordPress 404
- * Should only be loaded on 404_template hook
+ * Handle redirection through WordPress 404 Template
  */
-class UBP_Frontend {
+class UBP_404_Template {
 
 	var $domain;
 	var $response;

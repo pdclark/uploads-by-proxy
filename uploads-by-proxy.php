@@ -52,6 +52,9 @@ if ( !defined('UBP_LIVE_DOMAIN') ) define('UBP_LIVE_DOMAIN', $_SERVER['HTTP_HOST
  */
 if ( !defined('UBP_IS_LOCAL') ) define('UBP_IS_LOCAL', ( '127.0.0.1' == $_SERVER['SERVER_ADDR'] && '127.0.0.1' == $_SERVER['REMOTE_ADDR'] ) );
 
+/**
+ * Used for deactivating the plugin here or in class-helpers.php if requirements aren't met.
+ */
 define( 'UBP_PLUGIN_FILE', __FILE__ );
 
 /**
@@ -69,10 +72,8 @@ if ( version_compare(PHP_VERSION, '5.2', '<') ) {
 
 require_once dirname( __FILE__ ).'/class-helpers.php';
 
-// Only initialize if we're on a development server and have a 404
+// Only initialize if we're on a development server
 if ( UBP_IS_LOCAL ) {
-
-	UBP_Helpers::requirements_check();
-	add_filter( '404_template', 'UBP_Helpers::frontend_init' );
-
+	add_action( 'admin_init', 'UBP_Helpers::requirements_check' );
+	add_filter( '404_template', 'UBP_Helpers::init_404_template' );
 }
