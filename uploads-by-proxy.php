@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Uploads by Proxy
-Plugin URI: http://brainstormmedia.com
-Description: Load images from live site if missing in development or staging environment. Only runs in a local development environment by default. Force the plugin to run with <code>define('UBP_IS_LOCAL', true);</code> in wp-config.php. If live domain is different than development domain, set the live domain with <code>define('UBP_LIVE_DOMAIN', 'live-domain.com');</code> in wp-config.php.
-Version: 1.0
+Plugin URI: http://wordpress.org/extend/plugins/uploads-by-proxy
 Author: Brainstorm Media
 Author URI: http://brainstormmedia.com
+Description: Load images from production site if missing in development or staging environment. Only runs in a local development environment by default. If live domain is different than development domain, set the live domain with <code>define('UBP_LIVE_DOMAIN', 'livedomain.com');</code> in wp-config.php.
+Version: 1.0
 */
 
 /**
