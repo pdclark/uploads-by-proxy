@@ -1,8 +1,0 @@
-# Proxy requests from /domain/path to http://domain/path
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{HTTP_HOST} ^(.*)$
-RewriteRule ^UPLOADS/(.*)$ http://PROXY/DOMAIN/UPLOADS/$1 [P,L]
-</IfModule>

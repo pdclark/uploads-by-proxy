@@ -3,7 +3,7 @@
 /**
  * Work around local DNS by asking public web sites to look up the IP of a domain
  */
-class Storm_Get_Public_IP {
+class UBP_Get_Public_IP {
 
 	var $domain;
 	var $transient;
@@ -17,7 +17,7 @@ class Storm_Get_Public_IP {
 
 		$ip = get_transient( $this->transient );
 
-		if ( empty($ip) && '127.0.0.1' == $_SERVER['SERVER_ADDR'] && '127.0.0.1' == $_SERVER['REMOTE_ADDR'] ) {
+		if ( empty($ip) ) {
 			// Loading and serving from localhost
 			$custom_url = apply_filters('ubp_ip_url', false, $this->domain );
 			$custom_args = apply_filters('ubp_ip_args', array() );
