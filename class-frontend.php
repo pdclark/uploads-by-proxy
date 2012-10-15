@@ -109,7 +109,10 @@ class UBP_Frontend {
 	}
 
 	public function get_domain() {
-		if( !isset($this->domain) ){ $this->domain = UBP_LIVE_DOMAIN; }
+		if( !isset($this->domain) ){
+			// Strip schema, slashes, and whitespace
+			$this->domain = str_replace( array( 'http://', 'https://', '/', ' ' ), '', UBP_LIVE_DOMAIN );
+		}
 		return $this->domain;
 	}
 
