@@ -60,15 +60,18 @@ if ( version_compare(PHP_VERSION, '5.2', '<') ) {
 	if ( is_admin() && (!defined('DOING_AJAX') || !DOING_AJAX) ) {
 		require_once ABSPATH.'/wp-admin/includes/plugin.php';
 		deactivate_plugins( __FILE__ );
-		wp_die( sprintf( __( '%s requires PHP 5.2 or higher, as does WordPress 3.2 and higher. The plugin has now disabled itself. For information on upgrading, %ssee this article%s.', 'uploads-by-proxy'), ubp_plugin_name(), '<a href="http://codex.wordpress.org/Switching_to_PHP5" target="_blank">', '</a>') );
+		wp_die( sprintf( __( 'Uploads by Proxy requires PHP 5.2 or higher, as does WordPress 3.2 and higher. The plugin has now disabled itself. For information on upgrading, %ssee this article%s.', 'uploads-by-proxy'), '<a href="http://codex.wordpress.org/Switching_to_PHP5" target="_blank">', '</a>') );
 	} else {
 		return;
 	}
 }
 
-require_once dirname( __FILE__ ).'/ubp-functions.php';
+require_once dirname( __FILE__ ).'/class-helpers.php';
 
 // Only initialize if we're on a development server and have a 404
 if ( UBP_IS_LOCAL ) {
-	add_filter( '404_template', 'ubp_frontend_init' );
+
+	add_action( 'admin_notices', 'UBP_Helpers::requirements_check' );
+	add_filter( '404_template', 'UBP_Helpers::frontend_init' );
+
 }
