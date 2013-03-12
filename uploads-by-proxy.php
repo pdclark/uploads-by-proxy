@@ -4,8 +4,8 @@ Plugin Name: Uploads by Proxy
 Plugin URI: http://wordpress.org/extend/plugins/uploads-by-proxy
 Author: Brainstorm Media
 Author URI: http://brainstormmedia.com
-Description: Load images from production site if missing in development or staging environment. Only runs in a local development environment by default. If live domain is different than development domain, set the live domain with <code>define('UBP_LIVE_DOMAIN', 'livedomain.com');</code> in wp-config.php.
-Version: 1.0
+Description: Load images from production site if missing in development environment. Activate by using either <code>define('WP_SITEURL', 'http://development-domain.com');</code> or <code>define('UBP_SITEURL', 'http://live-domain.com/wordpress');</code> in wp-config.php.
+Version: 1.1
 */
 
 /**
@@ -31,12 +31,6 @@ Version: 1.0
  */
 
 /**
- * Load live images from a domain differing from the current site's
- * For example, we're on domain.dev or stage.domain.com but want to load from domain.com
- */
-if ( !defined('UBP_LIVE_DOMAIN') ) define('UBP_LIVE_DOMAIN', $_SERVER['HTTP_HOST'] ); // e.g., domain.com
-
-/**
  * Check that we're on a development server.
  * This tests if we're serving from and to localhost (127.0.0.1),
  * which should catch most common dev environments like MAMP, WAMP, XAMPP, etc.
@@ -50,7 +44,12 @@ if ( !defined('UBP_LIVE_DOMAIN') ) define('UBP_LIVE_DOMAIN', $_SERVER['HTTP_HOST
  *     Doing so will cause 404 pages for wp-content/uploads to go into
  *     an infinite loop until Apache kills the PHP process.
  */
-if ( !defined('UBP_IS_LOCAL') ) define('UBP_IS_LOCAL', ( '127.0.0.1' == $_SERVER['SERVER_ADDR'] && '127.0.0.1' == $_SERVER['REMOTE_ADDR'] ) );
+if ( !defined('UBP_IS_LOCAL') ) {
+	define('UBP_IS_LOCAL', (
+		( '127.0.0.1' == $_SERVER['SERVER_ADDR'] && '127.0.0.1' == $_SERVER['REMOTE_ADDR'] ) // IPv4
+		|| ( '::1' == $_SERVER['SERVER_ADDR'] && '::1' == $_SERVER['REMOTE_ADDR'] ) // IPv6
+	) );
+}
 
 /**
  * Used for deactivating the plugin here or in class-helpers.php if requirements aren't met.
