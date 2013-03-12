@@ -7,7 +7,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: localhost, local, development, staging, uploads, media library, xampp, mamp, wamp, git, svn, subversion
 Requires at least: 3.1
 Tested up to: 3.5
-Stable tag: 1.0
+Stable tag: 1.1
 
 For local development: Automatically load images from the production version of wp-content/uploads if they are missing locally.
 
@@ -17,23 +17,18 @@ This plugin is meant to be used by developers who work on sites in a local devel
 
 = Setup =
 
-**Working on a local site, where your local domain matches your live domain**
+In most cases, you should be able to activate the plugin and go. If the plugin does not work automatically, then you need to set the address of your live WordPress install in `wp-config.php`, like this:
 
-For example, local is at `example.com` and live is at `example.com`, and you're using your hosts file to override DNS. If this is your setup, just activate the plugin.
+     define('UBP_SITEURL', 'http://example-live.com/wordpress');
 
-**Working on a local or staging site, where the domain is not the same as the production domain**
-
-For example, you are working on `example.dev` or `staging.example.com`, but the live site is `example.com`.
-
-Activate the plugin, then set the address for your live site in wp-config.php, like this:
-`define('UBP_LIVE_DOMAIN', 'livedomain.com');`
+If you are on a staging server (not a local development environment) you may need to force the plugin to run with `define( 'UBP_IS_LOCAL', true );` in `wp-config.php`. Do not set this on a live site!
 
 
 == Installation ==
 
 1. Upload the `uploads-by-proxy` folder to the `/wp-content/plugins/` directory
 1. In a local or staging development site, activate the Uploads by Proxy plugin through the 'Plugins' menu in WordPress
-1. If your development site address is different than your live site address, set your live site address in wp-config.php like this: `define('UBP_LIVE_DOMAIN', 'livedomain.com');`
+1. If your development site address is different than your live site address, or you are not using `WP_SITEURL`, set your live site address in `wp-config.php` like this: `define('UBP_SITEURL', 'http://example-live.com/wordpress');`
 
 == Frequently Asked Questions ==
 
@@ -82,9 +77,25 @@ function ubp_ip_url( $url, $domain ) {
 
 `<?php echo gethostbyname( $_GET['domain'] ); ?>`
 
+= Where are those icons in the wordpress.org plugin header from? =
+
+[Font Awesome](http://fortawesome.github.com/Font-Awesome)
 
 == Changelog ==
+
+= 1.1 =
+
+* Auto-detect live URL in cases where `WP_SITEURL` is being set in `wp-config.php`.
+* Change `UBP_LIVE_SITE` to `UBP_SITEURL` and match format to `WP_SITEURL`.
+* Maintain legacy support for installs using `UBP_LIVE_SITE`.
+* Add support for root directory installs mapping to subdirectory installs.
+* Add support for subdirectory installs mapping to root directory installs.
+* Add IPv6 localhost address when checking for local development environment.
 
 = 1.0 =
 
 * Initial public release.
+
+== Upgrade Notice ==
+
+Add support for sites where WordPress is installed in a subdirectory.
