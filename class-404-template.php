@@ -125,7 +125,7 @@ class UBP_404_Template {
 		}else if ( defined( 'UBP_SITEURL' ) && false !== UBP_SITEURL ) {
 		
 			$url = parse_url( UBP_SITEURL );
-			$url = 'http://' . $url['host'] . $url['path'];
+			$url = 'http://' . $url['host'] . @$url['path'];
 
 		}else if ( !is_multisite() ) {
 			// Nothing set... Get original siteurl from database
