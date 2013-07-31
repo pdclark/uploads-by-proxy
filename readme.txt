@@ -85,7 +85,7 @@ function ubp_ip_url( $url, $domain ) {
 
 = 1.1.1 =
 
-* Fix: Suppress notice that could keep image from displaying on first load when WordPress installed in root directory.
+* Fix: Suppress notice that could keep image from displaying on first load when WordPress installed in root directory. Thanks [@justnorris](http://wordpress.org/support/topic/fixed-some-issues?replies=1).
 
 = 1.1 =
 
@@ -102,4 +102,4 @@ function ubp_ip_url( $url, $domain ) {
 
 == Upgrade Notice ==
 
-Fix: Suppress notice that could keep image from displaying on first load when WordPress installed in root directory.
+Fix: Suppress notice that could keep image from displaying on first load when WordPress installed in root directory. Thanks [@justnorris](http://wordpress.org/support/topic/fixed-some-issues?replies=1).
