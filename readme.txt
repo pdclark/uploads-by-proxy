@@ -7,7 +7,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: localhost, local, development, staging, uploads, media library, xampp, mamp, wamp, git, svn, subversion
 Requires at least: 3.1
 Tested up to: 3.5
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 
 For local development: Automatically load images from the production version of wp-content/uploads if they are missing locally.
 
@@ -83,6 +83,10 @@ function ubp_ip_url( $url, $domain ) {
 
 == Changelog ==
 
+= 1.1.2 =
+
+* Fix: Resolve a warning output in debug environments. (Static function not declared as static.)
+
 = 1.1.1 =
 
 * Fix: Suppress notice that could keep image from displaying on first load when WordPress installed in root directory. Thanks [@justnorris](http://wordpress.org/support/topic/fixed-some-issues?replies=1).
@@ -102,4 +106,5 @@ function ubp_ip_url( $url, $domain ) {
 
 == Upgrade Notice ==
 
-Fix: Suppress notice that could keep image from displaying on first load when WordPress installed in root directory. Thanks [@justnorris](http://wordpress.org/support/topic/fixed-some-issues?replies=1).
+* Fix: Resolve a warning output in debug environments. (Static function not declared as static.)
+* Fix: Suppress notice that could keep image from displaying on first load when WordPress installed in root directory. Thanks [@justnorris](http://wordpress.org/support/topic/fixed-some-issues?replies=1).
