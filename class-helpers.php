@@ -21,7 +21,7 @@ class UBP_Helpers {
 	/**
 	 * Require single-site install before activating.
 	 */
-	function require_no_multisite() {
+	static public function require_no_multisite() {
 		if ( function_exists( 'is_multisite' ) && !is_multisite() ) { return true; }
 
 		if ( is_admin() && (!defined('DOING_AJAX') || !DOING_AJAX) ) {
