@@ -123,17 +123,31 @@ class UBP_404_Template {
 			$url = str_replace( array( 'http://', 'https://' ), '', UBP_LIVE_DOMAIN );
 			$url = 'http://' . $url;
 
-		}else if ( defined( 'UBP_SITEURL' ) && false !== UBP_SITEURL ) {
+		}else if ( is_multisite() && ( $siteurl = get_option( '_ubp_site_url' ) ) ) {
+			
+			$url = parse_url( $siteurl );
+			$url = 'http://' . $url['host'] . @$url['path'];
+
+		}else if ( is_multisite() && defined( 'UBP_SITEURL' ) && false !== UBP_SITEURL ) {
+
+			
+			$details = get_blog_details();
+			$url = parse_url( UBP_SITEURL );
+			$ms_url = '';
+			if ( SUBDOMAIN_INSTALL ) {
+				$parts = explode( '.', $details->domain );
+				$ms_url = $parts[0] . '.' . $url['host'];
+			} else {
+				$ms_url = $url['host'] . $details->path;
+			}
+			$url = 'http://' . $ms_url . @$url['path'];
+			
+		} else if ( defined( 'UBP_SITEURL' ) && false !== UBP_SITEURL ) {
 		
 			$url = parse_url( UBP_SITEURL );
 			$url = 'http://' . $url['host'] . @$url['path'];
 
-		}else if ( is_multisite() && ( $siteurl = get_option( 'ubp_site_url' ) ) ) {
-
-			$url = parse_url( $siteurl );
-			$url = 'http://' . $url['host'] . @$url['path'];
-			//die($url);			
-		}else if ( !is_multisite() ) {
+		} else {
 			// Nothing set... Get original siteurl from database
 
 			remove_filter( 'option_siteurl', '_config_wp_siteurl' );
