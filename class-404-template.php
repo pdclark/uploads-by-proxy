@@ -86,6 +86,7 @@ class UBP_404_Template {
 	 */
 	public function allow_path() {
 		$path = $this->get_remote_path();
+
 		if ( empty( $path ) ) { return false; }
 
 		$allowed_paths = array(
@@ -127,6 +128,11 @@ class UBP_404_Template {
 			$url = parse_url( UBP_SITEURL );
 			$url = 'http://' . $url['host'] . @$url['path'];
 
+		}else if ( is_multisite() && ( $siteurl = get_option( 'ubp_site_url' ) ) ) {
+
+			$url = parse_url( $siteurl );
+			$url = 'http://' . $url['host'] . @$url['path'];
+			//die($url);			
 		}else if ( !is_multisite() ) {
 			// Nothing set... Get original siteurl from database
 

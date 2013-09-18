@@ -21,7 +21,8 @@ class UBP_Helpers {
 	/**
 	 * Require single-site install before activating.
 	 */
-	static public function require_no_multisite() {
+	static public function require_no_multisite() {		
+		return true;
 		if ( function_exists( 'is_multisite' ) && !is_multisite() ) { return true; }
 
 		if ( is_admin() && (!defined('DOING_AJAX') || !DOING_AJAX) ) {
@@ -64,4 +65,27 @@ class UBP_Helpers {
 		return false;
 	}
 
+	static public function print_multisite_setting( $id ) {
+		switch_to_blog( $id );
+		$ubp_site_url = get_option( 'ubp_site_url' );
+		restore_current_blog();
+		?>
+		<tr class="form-field">
+			<th scope="row">UBP Site URL</th>
+			<td><input class="all-options" name="option[ubp_site_url]" type="text" id="ubp_site_url" value="<?php echo $ubp_site_url ?>" size="40"></td>
+		</tr>
+		<?php
+	}
+
+	static public function wpmu_update_blog_options(  ) {
+		//die('<pre>'.print_r($_POST, true));
+		if ( isset( $_POST['option']['ubp_site_url'] ) ) {
+			update_option( 'ubp_site_url', $_POST['option']['ubp_site_url'] );
+		}
+	}
+
+	static public function ubp_old_ms_path( $allowed_paths ) {
+		$allowed_paths[] = '/files/';
+		return $allowed_paths;
+	}
 }

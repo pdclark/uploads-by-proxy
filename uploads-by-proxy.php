@@ -76,3 +76,10 @@ if ( UBP_IS_LOCAL ) {
 	add_action( 'admin_init', 'UBP_Helpers::requirements_check' );
 	add_filter( '404_template', 'UBP_Helpers::init_404_template' );
 }
+
+
+if ( function_exists( 'is_multisite' ) && is_multisite() ) {
+	add_action( 'wpmueditblogaction', 'UBP_Helpers::print_multisite_setting' );
+	add_action( 'wpmu_update_blog_options', 'UBP_Helpers::wpmu_update_blog_options' );
+	add_filter( 'ubp_allowed_paths', 'UBP_Helpers::ubp_old_ms_path' );
+}
