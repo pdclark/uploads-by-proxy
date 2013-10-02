@@ -76,15 +76,16 @@ class UBP_Helpers {
 		<?php
 	}
 
-	static public function ubp_old_ms_path( $allowed_paths ) {
+	static public function ubp_extra_paths( $allowed_paths ) {
 		$details = get_blog_details();
 		$allowed_paths[] = $details->path . 'files/';
+		$allowed_paths[] = $details->path . 'wp-content/uploads/';
 		return $allowed_paths;
 	}
 
 	static function stop_ms_files_rewriting() {
-        $url = '/wp-content/uploads/sites/' . get_current_blog_id();
-        define( 'BLOGUPLOADDIR', $url );
+        $path = ABSPATH . 'wp-content/uploads/sites/' . get_current_blog_id();
+        define( 'BLOGUPLOADDIR', $path );
 	}
 
 }

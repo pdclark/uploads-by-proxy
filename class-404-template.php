@@ -47,7 +47,7 @@ class UBP_404_Template {
 
 		$remove = str_replace( get_option( 'siteurl' ), '', $u['baseurl'] );
 		$basedir = str_replace( $remove, '', $basedir );
-		$abspath = $basedir . $this->get_local_path();
+		$abspath = $basedir . $this->get_dated_path();
 		$dir = dirname( $abspath );
 
 		if ( !is_dir( $dir ) && !wp_mkdir_p( $dir ) ) { 
@@ -57,7 +57,7 @@ class UBP_404_Template {
 		$saved_image = $wp_filesystem->put_contents( $abspath, $this->response['body'], FS_CHMOD_FILE ); // predefined mode settings for WP files
 
 		if ( $saved_image ) {
-			wp_redirect( get_site_url( get_current_blog_id(), $this->get_local_path() ) );
+			wp_redirect( get_site_url( get_current_blog_id(), $this->get_ms_adjusted_path() ) );
 			exit;
 		}else {
 			$this->display_and_exit( "Please check permissions. Could not write image $dir" );
@@ -169,6 +169,27 @@ class UBP_404_Template {
 		return $this->domain;
 	}
 
+	public function get_dated_path() {
+		$path = $this->get_local_path();
+
+		if ( function_exists( 'is_multisite' ) && is_multisite() && strpos( $path, '/files/' ) === 0 ) {
+			$path = str_replace( '/files', '', $path );
+		}
+		
+		return $path;		
+	}
+	
+	public function get_ms_adjusted_path() {
+		$path = $this->get_local_path();
+		
+		//switch to the "new" multisite files location
+		if ( function_exists( 'is_multisite' ) && is_multisite() && strpos( $path, '/files/' ) === 0 ) {
+			$path = 'wp-content/uploads/sites/' . get_current_blog_id() . str_replace( '/files', '', $path );
+		}
+
+		return $path;
+	}
+	
 	public function get_local_path() {
 		if ( isset( $this->local_path ) ) {
 			return $this->local_path;
@@ -177,9 +198,10 @@ class UBP_404_Template {
 		// If local install is in a subdirectory, modify path to request from WordPress root
 		$local_wordpress_path = parse_url( get_site_url(), PHP_URL_PATH );
 		$requested_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+
 		if (substr($requested_path, 0, strlen($local_wordpress_path)) == $local_wordpress_path) {
 		    $requested_path = substr($requested_path, strlen($local_wordpress_path), strlen($requested_path));
-		} 
+		}
 
 		$this->local_path = $requested_path;
 
@@ -193,6 +215,7 @@ class UBP_404_Template {
 
 		// If remote install is in a subdirectory, prepend the remote path
 		$remote_path = parse_url( $this->get_siteurl(), PHP_URL_PATH );
+
 		if ( !empty( $remote_path ) ) {
 			$this->remote_path = $remote_path . $this->get_local_path();
 		}else {
