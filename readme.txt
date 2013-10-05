@@ -35,10 +35,6 @@ In your .htaccess you should comment out the following line if present:
 
 	#RewriteRule ^([_0-9a-zA-Z-]+/)?files/(.+) wp-includes/ms-files.php?file=$2 [L]
 
-and add the following line directly above "RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-(content|admin|includes).*) $2 [L]"
-
-	RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-content/uploads.*) $2 [S=2]
-
 == Installation ==
 
 1. Upload the `uploads-by-proxy` folder to the `/wp-content/plugins/` directory
