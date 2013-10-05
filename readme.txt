@@ -1,5 +1,5 @@
 === Uploads by Proxy ===
-Contributors: pdclark, brainstormmedia
+Contributors: pdclark, brainstormmedia, jrfoell
 Author URI: http://brainstormmedia.com
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FD4GKBGQFUZC8
 License: GPLv2 or later
@@ -23,6 +23,21 @@ In most cases, you should be able to activate the plugin and go. If the plugin d
 
 If you are on a staging server (not a local development environment) you may need to force the plugin to run with `define( 'UBP_IS_LOCAL', true );` in `wp-config.php`. Do not set this on a live site!
 
+= Multi-Site =
+
+Multi-site support is available in WordPress 3.6+ but it requires additional configuration. 
+
+In wp-config.php, in addition to the 'UBP_SITEURL' define you should also add this:
+
+	define( 'UPLOADBLOGSDIR', 'wp-content/uploads/sites' );
+
+In your .htaccess you should comment out the following line if present:
+
+	#RewriteRule ^([_0-9a-zA-Z-]+/)?files/(.+) wp-includes/ms-files.php?file=$2 [L]
+
+and add the following line directly above "RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-(content|admin|includes).*) $2 [L]"
+
+	RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-content/uploads.*) $2 [S=2]
 
 == Installation ==
 

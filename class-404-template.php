@@ -57,7 +57,9 @@ class UBP_404_Template {
 		$saved_image = $wp_filesystem->put_contents( $abspath, $this->response['body'], FS_CHMOD_FILE ); // predefined mode settings for WP files
 
 		if ( $saved_image ) {
-			wp_redirect( get_site_url( get_current_blog_id(), $this->get_ms_adjusted_path() ) );
+			$path = $this->get_ms_adjusted_path();
+			$redirect = get_site_url( get_current_blog_id(), $path );
+			wp_redirect( $redirect );
 			exit;
 		}else {
 			$this->display_and_exit( "Please check permissions. Could not write image $dir" );
