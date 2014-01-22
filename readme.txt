@@ -1,13 +1,12 @@
 === Uploads by Proxy ===
-Contributors: pdclark, brainstormmedia
-Author URI: http://brainstormmedia.com
-Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FD4GKBGQFUZC8
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Contributors: pdclark, 10up
+Author URI: http://pdclark.com
 Tags: localhost, local, development, staging, uploads, media library, xampp, mamp, wamp, git, svn, subversion
 Requires at least: 3.1
 Tested up to: 3.6
 Stable tag: 1.1.2
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 For local development: Automatically load images from the production version of wp-content/uploads if they are missing locally.
 
