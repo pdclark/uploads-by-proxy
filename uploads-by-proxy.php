@@ -1,34 +1,12 @@
 <?php
 /*
 Plugin Name: Uploads by Proxy
-Plugin URI: http://wordpress.org/extend/plugins/uploads-by-proxy
-Author: Brainstorm Media
-Author URI: http://brainstormmedia.com
+Plugin URI: http://github.com/10up/uploads-by-proxy
+Author: Paul Clark, 10up
+Author URI: http://pdclark.com
 Description: Load images from production site if missing in development environment. Activate by using either <code>define('WP_SITEURL', 'http://development-domain.com');</code> or <code>define('UBP_SITEURL', 'http://live-domain.com/wordpress');</code> in wp-config.php.
-Version: 1.1.2
+Version: 1.1.3ms
 */
-
-/**
- * Copyright (c) 2012 Brainstorm Media. All rights reserved.
- *
- * Released under the GPL license
- * http://www.opensource.org/licenses/gpl-license.php
- *
- * This is an add-on for WordPress
- * http://wordpress.org/
- *
- * **********************************************************************
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * **********************************************************************
- */
 
 /**
  * Check that we're on a development server.
@@ -77,10 +55,8 @@ if ( UBP_IS_LOCAL ) {
 	add_filter( '404_template', 'UBP_Helpers::init_404_template' );
 }
 
-
 if ( function_exists( 'is_multisite' ) && is_multisite() ) {
 	add_action( 'wpmueditblogaction', 'UBP_Helpers::print_multisite_setting' );
 	add_filter( 'ubp_allowed_paths', 'UBP_Helpers::ubp_extra_paths' );
 	add_action( 'init','UBP_Helpers::stop_ms_files_rewriting' );
 }
-

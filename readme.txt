@@ -8,6 +8,8 @@ Tags: localhost, local, development, staging, uploads, media library, xampp, mam
 Requires at least: 3.1
 Tested up to: 3.6
 Stable tag: 1.1.2
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 For local development: Automatically load images from the production version of wp-content/uploads if they are missing locally.
 
@@ -27,11 +29,11 @@ If you are on a staging server (not a local development environment) you may nee
 
 Multi-site support is available in WordPress 3.6+ but it requires additional configuration. 
 
-In wp-config.php, in addition to the 'UBP_SITEURL' define you should also add this:
+In wp-config.php, in addition to the 'UBP_SITEURL' define, also add this:
 
-	define( 'UPLOADBLOGSDIR', 'wp-content/uploads/sites' );
+	define('UPLOADBLOGSDIR', 'wp-content/uploads/sites');
 
-In your .htaccess you should comment out the "ms-files" line if present. It will look something like one of these two lines:
+In your .htaccess, comment out the "ms-files" line if present. It will look something like one of these two lines:
 
 	#RewriteRule ^([_0-9a-zA-Z-]+/)?files/(.+) wp-includes/ms-files.php?file=$2 [L]
 	#RewriteRule ^files/(.+) wp-includes/ms-files.php?file=$1 [L]
@@ -50,7 +52,7 @@ RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-(content|admin|includes).*) $2 [L]
 RewriteRule ^([_0-9a-zA-Z-]+/)?(.*\.php)$ $2 [L]
 RewriteRule . index.php [L]`
 
-This is due to a bug that either manifests itself in Apache or in the distributed Multi-Site .htaccess (https://core.trac.wordpress.org/ticket/20746)
+These lines must be placed in that exact spot. They are needed due to a bug that either manifests itself in Apache or in the distributed Multi-Site .htaccess (https://core.trac.wordpress.org/ticket/20746)
 
 
 == Installation ==
@@ -111,6 +113,10 @@ function ubp_ip_url( $url, $domain ) {
 [Font Awesome](http://fortawesome.github.com/Font-Awesome)
 
 == Changelog ==
+
+= 1.1.3 =
+
+Multi-Site support (requires extra manual configuration)
 
 = 1.1.2 =
 
