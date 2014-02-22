@@ -31,9 +31,27 @@ In wp-config.php, in addition to the 'UBP_SITEURL' define you should also add th
 
 	define( 'UPLOADBLOGSDIR', 'wp-content/uploads/sites' );
 
-In your .htaccess you should comment out the following line if present:
+In your .htaccess you should comment out the "ms-files" line if present. It will look something like one of these two lines:
 
 	#RewriteRule ^([_0-9a-zA-Z-]+/)?files/(.+) wp-includes/ms-files.php?file=$2 [L]
+	#RewriteRule ^files/(.+) wp-includes/ms-files.php?file=$1 [L]
+
+
+Also add the following lines between # start UBP and # end UBP to .htaccess:
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+# start UBP
+RewriteCond %{REQUEST_URI} ^/wp-(content|admin|includes).*$
+RewriteRule ^ - [S=2]
+# end UBP
+RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-(content|admin|includes).*) $2 [L]
+RewriteRule ^([_0-9a-zA-Z-]+/)?(.*\.php)$ $2 [L]
+RewriteRule . index.php [L]`
+
+This is due to a bug that either manifests itself in Apache or in the distributed Multi-Site .htaccess (https://core.trac.wordpress.org/ticket/20746)
+
 
 == Installation ==
 
