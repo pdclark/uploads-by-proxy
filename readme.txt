@@ -38,21 +38,14 @@ In your .htaccess, comment out the "ms-files" line if present. It will look some
 	#RewriteRule ^([_0-9a-zA-Z-]+/)?files/(.+) wp-includes/ms-files.php?file=$2 [L]
 	#RewriteRule ^files/(.+) wp-includes/ms-files.php?file=$1 [L]
 
+Also in your .htaccess, replace the following 'Normal' rewrite rules with the UBP Multisite rule below:
 
-Also add the following lines between # start UBP and # end UBP to .htaccess:
+# Normal
+#RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-(content|admin|includes).*) $2 [L]
+# UBP Multisite
+RewriteRule ^[_0-9a-zA-Z-]+/(wp-(content|admin|includes).*) $1 [L]
 
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
-# start UBP
-RewriteCond %{REQUEST_URI} ^/wp-(content|admin|includes).*$
-RewriteRule ^ - [S=2]
-# end UBP
-RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-(content|admin|includes).*) $2 [L]
-RewriteRule ^([_0-9a-zA-Z-]+/)?(.*\.php)$ $2 [L]
-RewriteRule . index.php [L]`
-
-These lines must be placed in that exact spot. They are needed due to a bug that either manifests itself in Apache or in the distributed Multi-Site .htaccess (https://core.trac.wordpress.org/ticket/20746)
+This last .htaccess change is needed due to a bug that either manifests itself in Apache or in the default distributed WordPress Multi-Site .htaccess (https://core.trac.wordpress.org/ticket/20746)
 
 
 == Installation ==

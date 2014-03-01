@@ -88,4 +88,7 @@ class UBP_Helpers {
         define( 'BLOGUPLOADDIR', $path );
 	}
 
+	static function pre_site_option_ms_files_rewriting( $option ) {
+		return 0; //return 0, not FALSE
+	}
 }

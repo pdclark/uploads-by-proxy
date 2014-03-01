@@ -59,4 +59,5 @@ if ( function_exists( 'is_multisite' ) && is_multisite() ) {
 	add_action( 'wpmueditblogaction', 'UBP_Helpers::print_multisite_setting' );
 	add_filter( 'ubp_allowed_paths', 'UBP_Helpers::ubp_extra_paths' );
 	add_action( 'init','UBP_Helpers::stop_ms_files_rewriting' );
+	add_filter( 'pre_site_option_ms_files_rewriting', 'UBP_Helpers::pre_site_option_ms_files_rewriting' );
 }
