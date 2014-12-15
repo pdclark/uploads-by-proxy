@@ -59,14 +59,18 @@ class UBP_Get_Public_IP {
 		);
 
 		$response = wp_remote_get( $url, $query_args );
-		$body = strip_tags($response['body']);
+		
+		if ( ! is_wp_error( $response ) ) {
+			$body = strip_tags($response['body']);
 
-		preg_match_all( $this->ip_pattern, $body, $matches );
+			preg_match_all( $this->ip_pattern, $body, $matches );
 
-		if ( !empty($matches[0][$index] ) ) { return $matches[0][$index]; }
+			return !empty( $matches[0][$index] )
+				? $matches[0][$index]
+				: false;
+		}
 
 		return false;
-
 	}
 
 }
