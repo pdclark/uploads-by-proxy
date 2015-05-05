@@ -1,5 +1,5 @@
 === Uploads by Proxy ===
-Contributors: pdclark, 10up
+Contributors: pdclark
 Author URI: http://pdclark.com
 Tags: localhost, local, development, staging, uploads, media library, xampp, mamp, wamp, git, svn, subversion
 Requires at least: 3.1
