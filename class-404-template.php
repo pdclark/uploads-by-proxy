@@ -43,14 +43,12 @@ class UBP_404_Template {
 		global $wp_filesystem; WP_Filesystem();
 
 		$u = wp_upload_dir();
-		$basedir = $u['basedir'];
 
-		$remove = str_replace( get_option( 'siteurl' ), '', $u['baseurl'] );
-		$basedir = str_replace( $remove, '', $basedir );
+		$basedir = str_replace( $this->uploads_basedir(), '', $u['basedir'] );
 		$abspath = $basedir . $this->get_local_path();
 		$dir = dirname( $abspath );
 
-		if ( !is_dir( $dir ) && !wp_mkdir_p( $dir ) ) { 
+		if ( !is_dir( $dir ) && !wp_mkdir_p( $dir ) ) {
 			$this->display_and_exit( "Please check permissions. Could not create directory $dir" );
 		}
 
