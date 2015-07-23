@@ -29,7 +29,7 @@ class UBP_404_Template {
 		// Send domain name in request headers so vhosts resolve
 		$args = array( 'headers' => array( 'Host' => $this->get_domain() ) );
 		// Route around local DNS by requesting by IP directly
-		$url = 'http://' . $ip . $this->get_remote_path();
+		$url = 'http://' . $this->get_auth() . $ip . $this->get_remote_path();
 
 		$this->response = wp_remote_get( $url, $args);
 
@@ -143,10 +143,25 @@ class UBP_404_Template {
 	}
 
 	public function get_domain() {
-		if( !isset( $this->domain ) ) {
+		if ( !isset( $this->domain ) ) {
 			$this->domain = parse_url( $this->get_siteurl(), PHP_URL_HOST );
 		}
 		return $this->domain;
+	}
+
+	public function get_auth() {
+		if ( !isset( $this->auth ) ) {
+			$user = parse_url( $this->get_siteurl(), PHP_URL_USER );
+			$pass = parse_url( $this->get_siteurl(), PHP_URL_PASS );
+
+			if ( $user && $pass )
+				$this->auth = $user . ':' . $pass . '@';
+			elseif ( $user )
+				$this->auth = $user . '@';
+			else
+				$this->auth = '';
+		}
+		return $this->auth;
 	}
 
 	public function get_local_path() {
