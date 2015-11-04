@@ -155,11 +155,11 @@ class UBP_404_Template {
 		}
 
 		// If local install is in a subdirectory, modify path to request from WordPress root
-		$local_wordpress_path = parse_url( get_site_url(), PHP_URL_PATH );
+		$local_wordpress_path = parse_url( get_site_url(), PHP_URL_PATH ) . '/';
 		$requested_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
 		if (substr($requested_path, 0, strlen($local_wordpress_path)) == $local_wordpress_path) {
-		    $requested_path = substr($requested_path, strlen($local_wordpress_path), strlen($requested_path));
-		} 
+		    $requested_path = substr($requested_path, strlen($local_wordpress_path)-1, strlen($requested_path));
+		}
 
 		$this->local_path = $requested_path;
 
