@@ -107,7 +107,7 @@ class UBP_404_Template {
 	 */
 	public function uploads_basedir() {
 		$uploads = wp_upload_dir();
-		return str_replace( ABSPATH, '', $uploads['basedir'] );
+		return parse_url( $uploads['baseurl'], PHP_URL_PATH );
 	}
 
 	public function get_siteurl() {
