@@ -23,6 +23,7 @@ class UBP_Get_Public_IP {
 			$custom_args = apply_filters('ubp_ip_args', array() );
 
 			if ( $custom_url ) $ip = $this->get_ip( $custom_url, $custom_args );
+			if ( !$ip ) $ip = $this->get_ip( 'http://www.webyield.net/ip/index.php', array( 'method' => 'POST', 'referer'=>'http://www.webyield.net/ip/index.php', 'body' => 'submit=Locate&ip='.$domain ) );
 			if ( !$ip ) $ip = $this->get_ip( 'http://hostnametoip.com/', array( 'index'=>1, 'method' => 'POST', 'referer'=>'http://hostnametoip.com/', 'body' => 'conversion=1&addr='.$domain ) );
 			if ( !$ip ) $ip = $this->get_ip( "http://aruljohn.com/cgi-bin/hostname2ip.pl?host=$domain", array( 'referer'=>'http://aruljohn.com/hostname2ip.html' ) );
 
