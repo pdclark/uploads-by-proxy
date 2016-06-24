@@ -45,7 +45,7 @@ class UBP_Get_Public_IP {
 	public function get_ip( $url, $args=array() ) {
 		$defaults = array( 
 			'method' => 'GET',
-			'referer'=> $domain,
+			'referer'=> $this->domain,
 			'body' => '',
 			'index' => 0,
 		);
@@ -59,7 +59,7 @@ class UBP_Get_Public_IP {
 		);
 
 		$response = wp_remote_get( $url, $query_args );
-		$body = strip_tags($response['body']);
+		$body = strip_tags($response->body);
 
 		preg_match_all( $this->ip_pattern, $body, $matches );
 
