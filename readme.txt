@@ -1,10 +1,10 @@
 === Uploads by Proxy ===
-Contributors: pdclark
+Contributors: pdclark, ramon fincken
 Author URI: http://pdclark.com
-Tags: localhost, local, development, staging, uploads, media library, xampp, mamp, wamp, git, svn, subversion
+Tags: localhost, local, development, staging, uploads, media library, xampp, mamp, wamp, git, svn, subversion, DTAP, OTAP, 302, redirect
 Requires at least: 3.1
 Tested up to: 3.6
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ For local development: Automatically load images from the production version of 
 
 == Description ==
 
-This plugin is meant to be used by developers who work on sites in a local development environment before deploying changes to a production (live) server. It allows you skip downloading the contents of `wp-content/uploads` to your local WordPress install. Instead, images missing from the uploads directory are loaded from the production server as needed.
+This plugin is meant to be used by developers who work on sites in a local development environment before deploying changes to a production (live) server. It allows you skip downloading the contents of `wp-content/uploads` to your local WordPress install. Instead, images missing from the uploads directory are loaded from the production server as needed. You have the option to download the files or to redirect to the original url.
 
 = Setup =
 
@@ -21,6 +21,10 @@ In most cases, you should be able to activate the plugin and go. If the plugin d
      define('UBP_SITEURL', 'http://example-live.com/wordpress');
 
 If you are on a staging server (not a local development environment) you may need to force the plugin to run with `define( 'UBP_IS_LOCAL', true );` in `wp-config.php`. Do not set this on a live site!
+
+If you are on a staging server you may also use this define to 302 redirect to the original URL instead of downloading. This saves storage and ensures the latest version of the uploaded media file.
+	define('UBP_REDIRECT', true);
+
 
 
 == Installation ==
@@ -81,6 +85,10 @@ function ubp_ip_url( $url, $domain ) {
 [Font Awesome](http://fortawesome.github.com/Font-Awesome)
 
 == Changelog ==
+
+= 1.1.3 =
+
+* Add support to 302 redirect to the original URL instead of downloading. Saves storage and ensures the latest version of the uploaded media file.
 
 = 1.1.2 =
 
