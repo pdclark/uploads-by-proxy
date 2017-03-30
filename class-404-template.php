@@ -22,6 +22,20 @@ class UBP_404_Template {
 	 * Stream files from publicly registered IP address through PHP
 	 */
 	public function stream() {
+		// Redirect to original url?
+		// https://www.mijnpress.nl/2013/uploads-by-proxy-302-redirect-instead-of-force-download-to-local-directory/
+		if( defined('UBP_REDIRECT') && UBP_REDIRECT == TRUE )
+		{
+			$redirect_url = UBP_SITEURL.$this->get_remote_path();
+			$this->response = wp_remote_head( $redirect_url );
+			if ( is_wp_error($this->response) || 200 != $this->response['response']['code'] ) {
+				$this->display_and_exit( "Remote url not readable. Path: ".$this->get_remote_path() );
+			}
+			wp_redirect( $redirect_url, 302 ); // 302 as files _can_ change
+			exit;
+		}
+		// Falltrough to download file to local storage
+
 		require dirname(__FILE__).'/class-get-public-ip.php';
 
 		$ip = new UBP_Get_Public_IP( $this->get_domain() );
@@ -30,6 +44,7 @@ class UBP_404_Template {
 		$args = array( 'headers' => array( 'Host' => $this->get_domain() ) );
 		// Route around local DNS by requesting by IP directly
 		$url = 'http://' . $this->get_auth() . $ip . $this->get_remote_path();
+
 
 		$this->response = wp_remote_get( $url, $args);
 
