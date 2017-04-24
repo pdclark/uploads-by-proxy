@@ -13,7 +13,7 @@ class UBP_Helpers {
 	}
 
 	static public function requirements_check() {
-		add_action( 'admin_init', 'UBP_Helpers::require_no_multisite', 11 );
+		//add_action( 'admin_init', 'UBP_Helpers::require_no_multisite', 11 );
 		add_action( 'admin_notices', 'UBP_Helpers::request_uploads_writable' );
 		add_action( 'admin_footer', 'UBP_Helpers::request_permalinks_enabled' );
 	}
@@ -21,7 +21,7 @@ class UBP_Helpers {
 	/**
 	 * Require single-site install before activating.
 	 */
-	static public function require_no_multisite() {
+	static public function require_no_multisite() {		
 		if ( function_exists( 'is_multisite' ) && !is_multisite() ) { return true; }
 
 		if ( is_admin() && (!defined('DOING_AJAX') || !DOING_AJAX) ) {
@@ -64,4 +64,31 @@ class UBP_Helpers {
 		return false;
 	}
 
+	static public function print_multisite_setting( $id ) {
+		switch_to_blog( $id );
+		$ubp_site_url = get_option( '_ubp_site_url' );
+		restore_current_blog();
+		?>
+		<tr class="form-field">
+			<th scope="row">UBP Site URL</th>
+			<td><input class="all-options" name="option[_ubp_site_url]" type="text" id="ubp_site_url" value="<?php echo $ubp_site_url ?>" size="40"></td>
+		</tr>
+		<?php
+	}
+
+	static public function ubp_extra_paths( $allowed_paths ) {
+		$details = get_blog_details();
+		$allowed_paths[] = $details->path . 'files/';
+		$allowed_paths[] = $details->path . 'wp-content/uploads/';
+		return $allowed_paths;
+	}
+
+	static function stop_ms_files_rewriting() {
+        $path = ABSPATH . 'wp-content/uploads/sites/' . get_current_blog_id();
+        define( 'BLOGUPLOADDIR', $path );
+	}
+
+	static function pre_site_option_ms_files_rewriting( $option ) {
+		return 0; //return 0, not FALSE
+	}
 }

@@ -44,8 +44,9 @@ class UBP_404_Template {
 
 		$u = wp_upload_dir();
 
-		$basedir = str_replace( $this->uploads_basedir(), '', $u['basedir'] );
-		$abspath = $basedir . $this->get_local_path();
+		$remove = str_replace( get_option( 'siteurl' ), '', $u['baseurl'] );
+		$basedir = str_replace( $remove, '', $u['basedir'] );
+		$abspath = $basedir . $this->get_dated_path();
 		$dir = dirname( $abspath );
 
 		if ( !is_dir( $dir ) && !wp_mkdir_p( $dir ) ) {
@@ -55,7 +56,9 @@ class UBP_404_Template {
 		$saved_image = $wp_filesystem->put_contents( $abspath, $this->response['body'], FS_CHMOD_FILE ); // predefined mode settings for WP files
 
 		if ( $saved_image ) {
-			wp_redirect( get_site_url( get_current_blog_id(), $this->get_local_path() ) );
+			$path = $this->get_ms_adjusted_path();
+			$redirect = get_site_url( get_current_blog_id(), $path );
+			wp_redirect( $redirect );
 			exit;
 		}else {
 			$this->display_and_exit( "Please check permissions. Could not write image $dir" );
@@ -84,6 +87,7 @@ class UBP_404_Template {
 	 */
 	public function allow_path() {
 		$path = $this->get_remote_path();
+
 		if ( empty( $path ) ) { return false; }
 
 		$allowed_paths = array(
@@ -120,12 +124,31 @@ class UBP_404_Template {
 			$url = str_replace( array( 'http://', 'https://' ), '', UBP_LIVE_DOMAIN );
 			$url = 'http://' . $url;
 
-		}else if ( defined( 'UBP_SITEURL' ) && false !== UBP_SITEURL ) {
-		
+		}else if ( is_multisite() && ( $siteurl = get_option( '_ubp_site_url' ) ) ) {
+
+			$url = parse_url( $siteurl );
+			$url = 'http://' . $url['host'] . @$url['path'];
+
+		}else if ( is_multisite() && defined( 'UBP_SITEURL' ) && false !== UBP_SITEURL ) {
+
+
+			$details = get_blog_details();
+			$url = parse_url( UBP_SITEURL );
+			$ms_url = '';
+			if ( SUBDOMAIN_INSTALL ) {
+				$parts = explode( '.', $details->domain );
+				$ms_url = $parts[0] . '.' . $url['host'];
+			} else {
+				$ms_url = $url['host'] . $details->path;
+			}
+			$url = 'http://' . $ms_url . @$url['path'];
+
+		} else if ( defined( 'UBP_SITEURL' ) && false !== UBP_SITEURL ) {
+
 			$url = parse_url( UBP_SITEURL );
 			$url = 'http://' . $url['host'] . @$url['path'];
 
-		}else if ( !is_multisite() ) {
+		} else {
 			// Nothing set... Get original siteurl from database
 
 			remove_filter( 'option_siteurl', '_config_wp_siteurl' );
@@ -145,6 +168,27 @@ class UBP_404_Template {
 			$this->domain = parse_url( $this->get_siteurl(), PHP_URL_HOST );
 		}
 		return $this->domain;
+	}
+
+	public function get_dated_path() {
+		$path = $this->get_local_path();
+
+		if ( function_exists( 'is_multisite' ) && is_multisite() && strpos( $path, '/files/' ) === 0 ) {
+			$path = str_replace( '/files', '', $path );
+		}
+
+		return $path;		
+	}
+
+	public function get_ms_adjusted_path() {
+		$path = $this->get_local_path();
+
+		//switch to the "new" multisite files location
+		if ( function_exists( 'is_multisite' ) && is_multisite() && strpos( $path, '/files/' ) === 0 ) {
+			$path = 'wp-content/uploads/sites/' . get_current_blog_id() . str_replace( '/files', '', $path );
+		}
+
+		return $path;
 	}
 
 	public function get_auth() {
@@ -170,8 +214,10 @@ class UBP_404_Template {
 		// If local install is in a subdirectory, modify path to request from WordPress root
 		$local_wordpress_path = parse_url( get_site_url(), PHP_URL_PATH ) . '/';
 		$requested_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+
 		if (substr($requested_path, 0, strlen($local_wordpress_path)) == $local_wordpress_path) {
-		    $requested_path = substr($requested_path, strlen($local_wordpress_path)-1, strlen($requested_path));
+		    //$requested_path = substr($requested_path, strlen($local_wordpress_path), strlen($requested_path));
+			$requested_path = substr($requested_path, strlen($local_wordpress_path)-1, strlen($requested_path));
 		}
 
 		$this->local_path = $requested_path;
@@ -186,6 +232,7 @@ class UBP_404_Template {
 
 		// If remote install is in a subdirectory, prepend the remote path
 		$remote_path = parse_url( $this->get_siteurl(), PHP_URL_PATH );
+
 		if ( !empty( $remote_path ) ) {
 			$this->remote_path = $remote_path . $this->get_local_path();
 		}else {

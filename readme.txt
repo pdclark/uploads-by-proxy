@@ -1,5 +1,5 @@
 === Uploads by Proxy ===
-Contributors: pdclark
+Contributors: pdclark, jrfoell
 Author URI: http://pdclark.com
 Tags: localhost, local, development, staging, uploads, media library, xampp, mamp, wamp, git, svn, subversion
 Requires at least: 3.1
@@ -21,6 +21,28 @@ In most cases, you should be able to activate the plugin and go. If the plugin d
      define('UBP_SITEURL', 'http://example-live.com/wordpress');
 
 If you are on a staging server (not a local development environment) you may need to force the plugin to run with `define( 'UBP_IS_LOCAL', true );` in `wp-config.php`. Do not set this on a live site!
+
+= Multi-Site =
+
+Multi-site support is available in WordPress 3.6+ but it requires additional configuration. 
+
+In wp-config.php, in addition to the 'UBP_SITEURL' define, also add this:
+
+	define('UPLOADBLOGSDIR', 'wp-content/uploads/sites');
+
+In your .htaccess, comment out the "ms-files" line if present. It will look something like one of these two lines:
+
+	#RewriteRule ^([_0-9a-zA-Z-]+/)?files/(.+) wp-includes/ms-files.php?file=$2 [L]
+	#RewriteRule ^files/(.+) wp-includes/ms-files.php?file=$1 [L]
+
+Also in your .htaccess, replace the following 'Normal' rewrite rules with the UBP Multisite rule below:
+
+# Normal
+#RewriteRule ^([_0-9a-zA-Z-]+/)?(wp-(content|admin|includes).*) $2 [L]
+# UBP Multisite
+RewriteRule ^[_0-9a-zA-Z-]+/(wp-(content|admin|includes).*) $1 [L]
+
+This last .htaccess change is needed due to a bug that either manifests itself in Apache or in the default distributed WordPress Multi-Site .htaccess (https://core.trac.wordpress.org/ticket/20746)
 
 
 == Installation ==
@@ -81,6 +103,10 @@ function ubp_ip_url( $url, $domain ) {
 [Font Awesome](http://fortawesome.github.com/Font-Awesome)
 
 == Changelog ==
+
+= 1.1.3 =
+
+Multi-Site support (requires extra manual configuration)
 
 = 1.1.2 =
 

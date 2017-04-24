@@ -5,7 +5,7 @@ Plugin URI: http://github.com/pdclark/uploads-by-proxy
 Author: Paul Clark
 Author URI: http://pdclark.com
 Description: Load images from production site if missing in development environment. Activate by using either <code>define('WP_SITEURL', 'http://development-domain.com');</code> or <code>define('UBP_SITEURL', 'http://live-domain.com/wordpress');</code> in wp-config.php.
-Version: 1.1.2
+Version: 1.1.3ms
 */
 
 /**
@@ -53,4 +53,11 @@ require_once dirname( __FILE__ ).'/class-helpers.php';
 if ( UBP_IS_LOCAL ) {
 	add_action( 'admin_init', 'UBP_Helpers::requirements_check' );
 	add_filter( '404_template', 'UBP_Helpers::init_404_template' );
+}
+
+if ( function_exists( 'is_multisite' ) && is_multisite() ) {
+	add_action( 'wpmueditblogaction', 'UBP_Helpers::print_multisite_setting' );
+	add_filter( 'ubp_allowed_paths', 'UBP_Helpers::ubp_extra_paths' );
+	add_action( 'init','UBP_Helpers::stop_ms_files_rewriting' );
+	add_filter( 'pre_site_option_ms_files_rewriting', 'UBP_Helpers::pre_site_option_ms_files_rewriting' );
 }
