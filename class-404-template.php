@@ -29,7 +29,7 @@ class UBP_404_Template {
 		// Send domain name in request headers so vhosts resolve
 		$args = array( 'headers' => array( 'Host' => $this->get_domain() ) );
 		// Route around local DNS by requesting by IP directly
-		$url = 'http://' . $ip . $this->get_remote_path();
+		$url = 'http://' . $this->get_auth() . $ip . $this->get_remote_path();
 
 		$this->response = wp_remote_get( $url, $args);
 
@@ -43,14 +43,13 @@ class UBP_404_Template {
 		global $wp_filesystem; WP_Filesystem();
 
 		$u = wp_upload_dir();
-		$basedir = $u['basedir'];
 
 		$remove = str_replace( get_option( 'siteurl' ), '', $u['baseurl'] );
-		$basedir = str_replace( $remove, '', $basedir );
+		$basedir = str_replace( $remove, '', $u['basedir'] );
 		$abspath = $basedir . $this->get_dated_path();
 		$dir = dirname( $abspath );
 
-		if ( !is_dir( $dir ) && !wp_mkdir_p( $dir ) ) { 
+		if ( !is_dir( $dir ) && !wp_mkdir_p( $dir ) ) {
 			$this->display_and_exit( "Please check permissions. Could not create directory $dir" );
 		}
 
@@ -110,7 +109,7 @@ class UBP_404_Template {
 	 */
 	public function uploads_basedir() {
 		$uploads = wp_upload_dir();
-		return str_replace( ABSPATH, '', $uploads['basedir'] );
+		return parse_url( $uploads['baseurl'], PHP_URL_PATH );
 	}
 
 	public function get_siteurl() {
@@ -126,13 +125,13 @@ class UBP_404_Template {
 			$url = 'http://' . $url;
 
 		}else if ( is_multisite() && ( $siteurl = get_option( '_ubp_site_url' ) ) ) {
-			
+
 			$url = parse_url( $siteurl );
 			$url = 'http://' . $url['host'] . @$url['path'];
 
 		}else if ( is_multisite() && defined( 'UBP_SITEURL' ) && false !== UBP_SITEURL ) {
 
-			
+
 			$details = get_blog_details();
 			$url = parse_url( UBP_SITEURL );
 			$ms_url = '';
@@ -143,9 +142,9 @@ class UBP_404_Template {
 				$ms_url = $url['host'] . $details->path;
 			}
 			$url = 'http://' . $ms_url . @$url['path'];
-			
+
 		} else if ( defined( 'UBP_SITEURL' ) && false !== UBP_SITEURL ) {
-		
+
 			$url = parse_url( UBP_SITEURL );
 			$url = 'http://' . $url['host'] . @$url['path'];
 
@@ -165,7 +164,7 @@ class UBP_404_Template {
 	}
 
 	public function get_domain() {
-		if( !isset( $this->domain ) ) {
+		if ( !isset( $this->domain ) ) {
 			$this->domain = parse_url( $this->get_siteurl(), PHP_URL_HOST );
 		}
 		return $this->domain;
@@ -177,13 +176,13 @@ class UBP_404_Template {
 		if ( function_exists( 'is_multisite' ) && is_multisite() && strpos( $path, '/files/' ) === 0 ) {
 			$path = str_replace( '/files', '', $path );
 		}
-		
+
 		return $path;		
 	}
-	
+
 	public function get_ms_adjusted_path() {
 		$path = $this->get_local_path();
-		
+
 		//switch to the "new" multisite files location
 		if ( function_exists( 'is_multisite' ) && is_multisite() && strpos( $path, '/files/' ) === 0 ) {
 			$path = 'wp-content/uploads/sites/' . get_current_blog_id() . str_replace( '/files', '', $path );
@@ -191,18 +190,34 @@ class UBP_404_Template {
 
 		return $path;
 	}
-	
+
+	public function get_auth() {
+		if ( !isset( $this->auth ) ) {
+			$user = parse_url( $this->get_siteurl(), PHP_URL_USER );
+			$pass = parse_url( $this->get_siteurl(), PHP_URL_PASS );
+
+			if ( $user && $pass )
+				$this->auth = $user . ':' . $pass . '@';
+			elseif ( $user )
+				$this->auth = $user . '@';
+			else
+				$this->auth = '';
+		}
+		return $this->auth;
+	}
+
 	public function get_local_path() {
 		if ( isset( $this->local_path ) ) {
 			return $this->local_path;
 		}
 
 		// If local install is in a subdirectory, modify path to request from WordPress root
-		$local_wordpress_path = parse_url( get_site_url(), PHP_URL_PATH );
+		$local_wordpress_path = parse_url( get_site_url(), PHP_URL_PATH ) . '/';
 		$requested_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
 
 		if (substr($requested_path, 0, strlen($local_wordpress_path)) == $local_wordpress_path) {
-		    $requested_path = substr($requested_path, strlen($local_wordpress_path), strlen($requested_path));
+		    //$requested_path = substr($requested_path, strlen($local_wordpress_path), strlen($requested_path));
+			$requested_path = substr($requested_path, strlen($local_wordpress_path)-1, strlen($requested_path));
 		}
 
 		$this->local_path = $requested_path;

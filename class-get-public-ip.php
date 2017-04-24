@@ -23,7 +23,6 @@ class UBP_Get_Public_IP {
 			$custom_args = apply_filters('ubp_ip_args', array() );
 
 			if ( $custom_url ) $ip = $this->get_ip( $custom_url, $custom_args );
-			if ( !$ip ) $ip = $this->get_ip( "http://baremetal.com/cgi-bin/dnsip?target=$domain" );
 			if ( !$ip ) $ip = $this->get_ip( 'http://hostnametoip.com/', array( 'index'=>1, 'method' => 'POST', 'referer'=>'http://hostnametoip.com/', 'body' => 'conversion=1&addr='.$domain ) );
 			if ( !$ip ) $ip = $this->get_ip( "http://aruljohn.com/cgi-bin/hostname2ip.pl?host=$domain", array( 'referer'=>'http://aruljohn.com/hostname2ip.html' ) );
 
@@ -59,14 +58,18 @@ class UBP_Get_Public_IP {
 		);
 
 		$response = wp_remote_get( $url, $query_args );
-		$body = strip_tags($response->body);
 
-		preg_match_all( $this->ip_pattern, $body, $matches );
+		if ( ! is_wp_error( $response ) ) {
+			$body = strip_tags($response['body']);
 
-		if ( !empty($matches[0][$index] ) ) { return $matches[0][$index]; }
+			preg_match_all( $this->ip_pattern, $body, $matches );
+
+			return !empty( $matches[0][$index] )
+				? $matches[0][$index]
+				: false;
+		}
 
 		return false;
-
 	}
 
 }
