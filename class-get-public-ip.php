@@ -15,15 +15,18 @@ class UBP_Get_Public_IP {
 		$this->domain = $domain;
 		$this->transient = 'dbp_'.$domain;
 
-		$ip = get_transient( $this->transient );
+		// Filter to set remote IP programmatically
+		$ip = apply_filters( 'ubp_remote_ip', false );
+		if ( empty( $ip ) ) {
+			$ip = get_transient( $this->transient );
+		}
 
-		if ( empty($ip) ) {
+		if ( empty( $ip ) ) {
 			// Loading and serving from localhost
 			$custom_url = apply_filters('ubp_ip_url', false, $this->domain );
 			$custom_args = apply_filters('ubp_ip_args', array() );
 
 			if ( $custom_url ) $ip = $this->get_ip( $custom_url, $custom_args );
-			if ( !$ip ) $ip = $this->get_ip( 'http://hostnametoip.com/', array( 'index'=>1, 'method' => 'POST', 'referer'=>'http://hostnametoip.com/', 'body' => 'conversion=1&addr='.$domain ) );
 			if ( !$ip ) $ip = $this->get_ip( "http://aruljohn.com/cgi-bin/hostname2ip.pl?host=$domain", array( 'referer'=>'http://aruljohn.com/hostname2ip.html' ) );
 
 			if ( $ip ) {

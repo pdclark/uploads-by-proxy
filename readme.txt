@@ -3,8 +3,8 @@ Contributors: pdclark
 Author URI: http://pdclark.com
 Tags: localhost, local, development, staging, uploads, media library, xampp, mamp, wamp, git, svn, subversion
 Requires at least: 3.1
-Tested up to: 3.6
-Stable tag: 1.1.2
+Tested up to: 4.7.4
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,6 +55,10 @@ Nothing. The plugin only takes action if it detects it is on a local development
 
 The plugin only loads if the server address and browser address are both `127.0.0.1`. This should catch most local environments, such as MAMP, WAMP, and XAMPP.
 
+If your local domain is the same as the remote domain, and automatic IP detection doesn't work, use the <code>ubp_remote_ip</code> filter to set IP address programatticaly. 
+
+Example: <code>add_filter( 'ubp_remote_ip', function(){ return '12.34.56.789'; } );</code>
+
 If you want to run the plugin on a staging server, or have some other situation where you want to force the plugin to run, set `define('UBP_IS_LOCAL', true);` in wp-config.php.
 
 **Warning!** Do not force `UBP_IS_LOCAL` to `true` on a production site! If if have any 404 requests for images in the uploads directory, it will cause PHP to go into an infinite loop until Apache kills the process. This could make your site run very slowly.
@@ -81,6 +85,12 @@ function ubp_ip_url( $url, $domain ) {
 [Font Awesome](http://fortawesome.github.com/Font-Awesome)
 
 == Changelog ==
+
+= 1.1.3 =
+
+* Fix: Remove hostnametoip.com from IP service providers.
+* New: Add <code>ubp_remote_ip</code> filter to set IP address programatticaly. Usage: <code>add_filter( 'ubp_remote_ip', function(){ return '12.34.56.789'; } );</code>
+* Notice: Only one of three IP address services is still available. If this last one goes down, the plugin will no longer support automatic live IP detection when local development environments use the same domain name as the live environment. If this happens, use the new  <code>ubp_remote_ip</code> filter to set your remote IP address.
 
 = 1.1.2 =
 
