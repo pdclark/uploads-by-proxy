@@ -28,7 +28,7 @@ class UBP_404_Template {
 		{
 			$redirect_url = UBP_SITEURL.$this->get_remote_path();
 			$this->response = wp_remote_head( $redirect_url );
-			if ( is_wp_error($this->response) || 200 != $this->response['response']['code'] ) {
+			if ( (defined('UBP_BYPASS_HEAD_CHECK') && UBP_BYPASS_HEAD_CHECK == TRUE) || is_wp_error($this->response) || 200 != $this->response['response']['code'] ) {
 				// Comply with display_and_exit()
 				if(is_wp_error($this->response)) {
 					$this->response = array(  'headers' => array(), 'body' => $this->response->get_error_message() );
