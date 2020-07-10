@@ -4,7 +4,7 @@ Author URI: http://pdclark.com
 Tags: localhost, local, development, staging, uploads, media library, xampp, mamp, wamp, git, svn, subversion, DTAP, OTAP, 302, redirect
 Requires at least: 3.1
 Tested up to: 5.4.2
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -86,6 +86,10 @@ function ubp_ip_url( $url, $domain ) {
 [Font Awesome](http://fortawesome.github.com/Font-Awesome)
 
 == Changelog ==
+
+= 1.1.4 =
+
+* Add search replace
 
 = 1.1.3 =
 
