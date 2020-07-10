@@ -27,6 +27,13 @@ class UBP_404_Template {
 		if( defined('UBP_REDIRECT') && UBP_REDIRECT == TRUE )
 		{
 			$redirect_url = UBP_SITEURL.$this->get_remote_path();
+			if( defined( 'UBP_REPLACE' ) ) {			    
+			    foreach( UBP_REPLACE as $search => $replace ) {
+			        $redirect_url = str_replace( $search, $replace, $redirect_url );
+			    }
+			}
+			
+			
 			if( !(defined('UBP_BYPASS_HEAD_CHECK') && UBP_BYPASS_HEAD_CHECK == TRUE) ) {
 				$this->response = wp_remote_head( $redirect_url );
 				if ( is_wp_error($this->response) || 200 != $this->response['response']['code'] ) {
