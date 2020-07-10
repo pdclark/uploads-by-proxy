@@ -3,7 +3,7 @@ Contributors: pdclark, ramon fincken
 Author URI: http://pdclark.com
 Tags: localhost, local, development, staging, uploads, media library, xampp, mamp, wamp, git, svn, subversion, DTAP, OTAP, 302, redirect
 Requires at least: 3.1
-Tested up to: 3.6
+Tested up to: 5.4.2
 Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -24,6 +24,7 @@ If you are on a staging server (not a local development environment) you may nee
 
 If you are on a staging server you may also use this define to 302 redirect to the original URL instead of downloading. This saves storage and ensures the latest version of the uploaded media file.
 	define('UBP_REDIRECT', true);
+	define('UBP_REPLACE', [ '/app' => '/wp-content' ] ); // Enable vanilla wp-content instead of composer app directory
 
 
 
