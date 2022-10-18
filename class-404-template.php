@@ -10,6 +10,7 @@ class UBP_404_Template {
 	var $remote_path;
 	var $local_path;
 	var $response;
+	var $url_parts;
 
 	function __construct() {
 		// Only run for whitelisted paths
@@ -119,11 +120,12 @@ class UBP_404_Template {
 			// Strip schema, slashes, and whitespace
 			$url = str_replace( array( 'http://', 'https://' ), '', UBP_LIVE_DOMAIN );
 			$url = 'http://' . $url;
+			$this->url_parts = parse_url($url);
 
 		}else if ( defined( 'UBP_SITEURL' ) && false !== UBP_SITEURL ) {
 		
-			$url = parse_url( UBP_SITEURL );
-			$url = 'http://' . $url['host'] . @$url['path'];
+			$this->url_parts = parse_url( UBP_SITEURL );
+			$url = 'http://' .  $this->url_parts['host'] . @$this->url_parts['path'];
 
 		}else if ( !is_multisite() ) {
 			// Nothing set... Get original siteurl from database
@@ -131,6 +133,7 @@ class UBP_404_Template {
 			remove_filter( 'option_siteurl', '_config_wp_siteurl' );
 			$url = get_option( 'siteurl' );
 			add_filter( 'option_siteurl', '_config_wp_siteurl' );
+			$this->url_parts = parse_url($url);
 
 		}
 
@@ -149,8 +152,13 @@ class UBP_404_Template {
 
 	public function get_auth() {
 		if ( !isset( $this->auth ) ) {
-			$user = parse_url( $this->get_siteurl(), PHP_URL_USER );
-			$pass = parse_url( $this->get_siteurl(), PHP_URL_PASS );
+			if(!isset($this->url_parts)){
+				$user = parse_url( $this->get_siteurl(), PHP_URL_USER );
+				$pass = parse_url( $this->get_siteurl(), PHP_URL_PASS );
+			}else{
+				$user = $this->url_parts['user'];
+				$pass = $this->url_parts['pass'];
+			}
 
 			if ( $user && $pass )
 				$this->auth = $user . ':' . $pass . '@';
